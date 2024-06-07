@@ -1,0 +1,299 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/stocks.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    .canvasjs-chart-credit { display: none; }
+
+    body{
+    margin-top:20px;
+    background:#FAFAFA;
+}
+.order-card {
+    color: #fff;
+}
+
+.bg-c-blue {
+    background: linear-gradient(45deg,#4099ff,#73b4ff);
+}
+
+.bg-c-green {
+    background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+}
+
+.bg-c-yellow {
+    background: linear-gradient(45deg,#FFB64D,#ffcb80);
+}
+
+.bg-c-pink {
+    background: linear-gradient(45deg,#FF5370,#ff869a);
+}
+
+
+.card {
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    border: none;
+    margin-bottom: 30px;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.card .card-block {
+    padding: 25px;
+}
+
+.order-card i {
+    font-size: 26px;
+}
+
+.f-left {
+    float: left;
+}
+
+.f-right {
+    float: right;
+}
+  </style>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <script>
+    window.onload = function () {
+        var data = {{ stock_data|safe }};
+
+        time_series = [];
+        stock_price = [];
+
+        for(var i=0; i<data.length; i++) {
+            time_series.push({ label: data[i].year, y: data[i].date });
+            stock_price.push({ label: data[i].year, y: data[i].value });
+        }
+
+        var chart = new CanvasJS.Chart("chartContainer", {
+            theme: "light2",
+            exportEnabled: true,
+            title: {
+                text: "{{stockDetails.companyName}} Stock Analysis"
+            },
+            axisY: {
+                title: "Price (In INR)",
+            },
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                cursor: "pointer",
+                itemclick: function (e) {
+                    if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                        e.dataSeries.visible = false;
+                    } else {
+                        e.dataSeries.visible = true;
+                    }
+
+                    e.chart.render();
+                }
+            },
+            data: [{
+                type: "spline",
+                name: "Time Series",
+                showInLegend: true,
+                dataPoints: time_series
+            },{
+                type: "spline",
+                name: "Price",
+                showInLegend: true,
+                dataPoints: stock_price
+            }]
+        });
+        chart.render();
+    }
+</script>
+  <title>Stocks</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-primary">
+    <img src="{% static 'images/logopic.png' %}" alt="logopic" style="width:3%">
+  <a class="navbar-brand" href="#">Stock Hub</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/search">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/">Log Out</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+  <div class="container">
+
+    <div>
+      <div class="row">
+        <div id="chartContainer" style="height: 360px; width: 100%;"></div>
+      </div>
+    </div>
+
+    <section class="vh-100">
+
+  <div class="container py-5 h-100">
+
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="card w-75 mb-3">
+  <div class="card-body">
+    <h2 class="card-title"></h2>
+    <p class="card-text">
+      <ul style="font-size:1.2rem" class="list-group-flush">
+        <li class="list-group-item"><i class="fa-solid fa-location-dot"></i>  Industry: {{stockDetails.industry}}</li>
+        <li class="list-group-item"><i class="fa-solid fa-hand-holding-dollar"></i>  Face Value: {{stockDetails.faceValue}}</li>
+        <li class="list-group-item"><i class="fa-solid fa-sack-dollar"></i>  Market Cap: {{stockDetails.marketCapFull}}</li>
+        <li class="list-group-item"><i class="fa-solid fa-clock"></i>  Last Updated Market Time: {{stockDetails.updatedOn}}</li>
+        <li class="list-group-item list-group-item-success"><i class="fa-solid fa-arrow-trend-up"></i>  Market Day High: {{stockDetails.dayHigh}}</li>
+        <li class="list-group-item list-group-item-danger"><i class="fa-solid fa-arrow-trend-down"></i>  Market Day Low: {{stockDetails.dayLow}}</li>
+      </ul>
+    </p>
+  </div>
+</div>
+
+      <div class="row">
+        <div class="card-group">
+          <div class="card text-white bg-success w-100">
+          <div class="card-body">
+          <h5 class="card-title">52 Week High</h5>
+
+          <hr>  <h4 class="card-text">{{stockDetails.52weekHigh}}</h4>
+          </div>
+        </div>
+
+          <div class="card text-white bg-danger w-100">
+          <div class="card-body">
+          <h5 class="card-title">52 Week Low</h5>
+            <hr>
+            <h4 class="card-text">{{stockDetails.52weekLow}}</h4>
+          </div>
+        </div>
+
+          <div class="card text-white bg-primary w-100">
+          <div class="card-body">
+          <h5 class="card-title">Total Traded</h5>
+          <hr>
+            <h4 class="card-text">{{stockDetails.totalTradedQuantity}}</h4>
+          </div>
+          </div>
+
+          <div class="card text-white bg-secondary w-100">
+          <div class="card-body">
+          <h5 class="card-title">Traded Value</h5>
+            <hr>
+          <h4 class="card-text">{{stockDetails.totalTradedValue}}</h4>
+          </div>
+          </div>
+
+          <div class="card text-white bg-warning w-100">
+          <div class="card-body">
+          <h5 class="card-title">Weighted Avg. Price</h5>
+            <hr>
+          <h4 class="card-text">{{stockDetails.weightedAvgPrice}}</h4>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col col-xl-10">
+        <div class="card mb-5" style="border-radius: 15px;">
+          <div class="card-body p-4">
+            <h3 class="mb-3">PROs</h3>
+
+            <p style="font-size:20px" class="small mb-0"><i class="far fa-star fa-lg"></i> <span class="mx-2">|</span>Company is expected to give good quarter</p>
+            <p style="font-size:20px" class="small mb-0"><i class="far fa-star fa-lg"></i> <span class="mx-2">|</span>Company has delivered good profit growth of 34.4% CAGR over last 5 years</p>
+            <p style="font-size:20px" class="small mb-0"><i class="far fa-star fa-lg"></i> <span class="mx-2">|</span>Company's median sales growth is 15.2% of last 10 years</p>
+
+            <hr class="my-4">
+
+            <h3 class="mb-3">CONs</h3>
+
+            <p style="font-size:20px" class="small mb-0"><i class="far fa-star fa-lg"></i> <span class="mx-2">|</span>Company is expected to give good quarter</p>
+            <p style="font-size:20px" class="small mb-0"><i class="far fa-star fa-lg"></i> <span class="mx-2">|</span>Company has delivered good profit growth of 34.4% CAGR over last 5 years</p>
+            <p style="font-size:20px" class="small mb-0"><i class="far fa-star fa-lg"></i> <span class="mx-2">|</span>Company's median sales growth is 15.2% of last 10 years</p>
+<br><br><br>
+            <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Date</th>
+      <th scope="col">Value</th>
+      <th scope="col">Volume</th>
+    </tr>
+  </thead>
+  <tbody class="table-group-divider">
+  {% for i in stock_data %}
+    <tr>
+      <th scope="row">  {{ forloop.counter }}</th>
+      <td>{{i.date}}</td>
+      <td>{{i.value}}</td>
+      <td>{{i.vol}}</td>
+    </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
+
+
+            <hr class="my-4">
+
+          </div>
+        </div>
+        <div class="card" style="border-radius: 15px;">
+          <div class="card-body p-4">
+            <h3 class="mb-3">Company Type</h3>
+            <p class="small mb-0"><i class="fas fa-star fa-lg text-warning"></i> <span class="mx-2">|</span>
+              Public <span class="mx-2">|</span> Updated Last <strong>2023</strong>
+            </p>
+            <hr class="my-4">
+            <div class="d-flex justify-content-start align-items-center">
+              <p style="font-size:20px;" class="mb-0 text-uppercase"><i class="fas fa-cog me-2"></i> <span
+                  class="text-muted small">Top Stake holders</span></p>
+
+              <a href="#!">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-2.webp" alt="avatar"
+                  class="img-fluid rounded-circle me-1" width="35">
+              </a>
+              <a href="#!">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-3.webp" alt="avatar"
+                  class="img-fluid rounded-circle me-1" width="35">
+              </a>
+              <a href="#!">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-4.webp" alt="avatar"
+                  class="img-fluid rounded-circle me-1" width="35">
+              </a>
+              <a href="#!">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-5.webp" alt="avatar"
+                  class="img-fluid rounded-circle me-3" width="35">
+              </a>
+              <button type="button" class="btn btn-outline-dark btn-sm btn-floating">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+  </div>
+{{ df|safe }}
+</body>
+</html>

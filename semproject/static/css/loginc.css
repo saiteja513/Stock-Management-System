@@ -1,0 +1,18 @@
+.main {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.73));
+    /* background-image: linear-gradient(rgba(0,0,0,0.5),0(0,0,0,0.5)), url('landing.jpg'); */
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
+
+.sidep {
+    background-color: black;
+}
+
+.loginPanel {
+    background-color: #ffffff10;
+    border-radius: 10px;
+    padding: 10px;
+    color: white;
+}
